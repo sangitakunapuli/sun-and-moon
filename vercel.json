@@ -1,0 +1,9 @@
+{
+  "$schema":"https://openapi.vercel.sh/vercel.json",
+  "version":2,
+  "framework":null,
+  "outputDirectory":"public",
+  "regions":["iad1"],
+  "rewrites":[{"source":"/api/:action","destination":"/api/game?action=:action"}],
+  "headers":[{"source":"/(.*)","headers":[{"key":"X-Content-Type-Options","value":"nosniff"},{"key":"Referrer-Policy","value":"same-origin"}]}]
+}

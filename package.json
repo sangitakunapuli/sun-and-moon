@@ -1,0 +1,14 @@
+{
+  "name": "sun-and-moon",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js && node cloud-test.js"
+  },
+  "dependencies": {
+    "@upstash/redis": "1.41.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
