@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "test": "node test.js && node cloud-test.js"
+    "test": "node test.js && node cloud-test.js && node polling-test.js"
   },
   "dependencies": {
     "@upstash/redis": "1.41.0"
