@@ -3,12 +3,12 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "test": "node test.js && node cloud-test.js && node polling-test.js"
-  },
-  "dependencies": {
-    "@upstash/redis": "1.41.0"
+    "test": "node test.js && node websocket-test.js"
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "ws": "8.22.1"
   }
 }

@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: sun-and-moon-server
+    runtime: node
+    plan: free
+    region: virginia
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.16.0
+      - key: ALLOWED_ORIGINS
+        value: https://sun-and-moon-one.vercel.app,https://sun-and-moon-sans-projects-ad5462fc.vercel.app,http://localhost:3000,http://127.0.0.1:3000
