@@ -2,8 +2,9 @@ const crypto = require('crypto');
 const { Redis } = require('@upstash/redis');
 const { levels, reset, makePlayer, tick, selectLevel } = require('../world');
 let client;
+let quotaBlockedUntil=0;
 function redis() {
-  if (!client) client = new Redis({url:process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL, token:process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN, automaticDeserialization:false});
+  if (!client) client = new Redis({url:process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL, token:process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN, automaticDeserialization:false, retry:false});
   return client;
 }
 const TTL=86400, STEP=1000/60;
@@ -11,7 +12,7 @@ const cas="if redis.call('GET',KEYS[1]) == ARGV[1] then redis.call('SET',KEYS[1]
 function fail(message,status=400){const e=new Error(message);e.status=status;throw e;}
 function view(r){return {code:r.code,level:r.level,scene:levels[r.level],players:r.players.map(({token,input,jumpHeld,lastSeen,...p})=>p),bridges:r.bridges,gate:r.gate,stars:r.stars,complete:r.complete,won:r.won,total:r.total,completed:r.completed,bestStars:r.bestStars,levels:levels.map(l=>l.name)};}
 function advance(r,now){
-  for(const p of r.players){p.connected=now-p.lastSeen<4000;if(now-p.lastSeen>500)p.input={};}
+  for(const p of r.players){p.connected=now-p.lastSeen<12000;if(now-p.lastSeen>500)p.input={};}
   const elapsed=Math.min(30,Math.max(0,Math.floor((now-r.lastTick)/STEP)));
   for(let i=0;i<elapsed;i++)tick(r);
   r.lastTick=elapsed===30?now:r.lastTick+elapsed*STEP;
@@ -58,11 +59,12 @@ module.exports=async function(req,res){
   const action=req.query.action;
   if(req.method!=='POST'&&!(req.method==='GET'&&action==='config')){res.statusCode=405;return res.end();}
   try{
+    if(action!=='config'&&Date.now()<quotaBlockedUntil){res.status(429).json({error:'Database quota reached. Automatic retries are stopped.',code:'QUOTA_EXCEEDED'});return;}
     if(req.headers.origin&&new URL(req.headers.origin).host!==req.headers.host)fail('Invalid request origin.',403);
     const body=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
     if(JSON.stringify(body).length>4096)fail('Request too large.',413);
     res.status(200).json(await handle(action,body,req.headers['x-forwarded-for']?.split(',')[0]||'unknown'));
-  }catch(e){res.status(e.status||503).json({error:e.status?e.message:'Connection unavailable. Please try again.'});}
+  }catch(e){if(/(?:quota|limit).*(?:exceed|reach)|(?:exceed|reach).*(?:quota|limit)/i.test(e.message)){quotaBlockedUntil=Date.now()+300000;res.status(429).json({error:'Database quota reached. Automatic retries are stopped.',code:'QUOTA_EXCEEDED'});return;}res.status(e.status||503).json({error:e.status?e.message:'Connection unavailable. Please try again.'});}
 };
 module.exports.handle=handle;
 module.exports.setClient=value=>{client=value;};
