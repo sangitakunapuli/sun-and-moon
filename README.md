@@ -1,6 +1,6 @@
 # Sun & Moon
 
-A two-player cooperative platformer. One player creates a room; the other joins with its six-character code. Sun and Moon alternate holding bridges and securing anchors, collect stars, and finish each level together.
+A two-player cooperative platformer. One player creates a room; the other joins with its six-character code. Sun and Moon alternate holding bridges and securing anchors, collect stars, and finish each level together. Six scrolling chapters grow from 2,200 to 5,200 world units, with three to eight cooperative crossings, raised anchors, jump hazards and shared checkpoints. Each camera follows its own traveler; a minimap and edge markers locate the other player.
 
 ## Run locally
 
@@ -25,4 +25,4 @@ The free Render service may sleep when inactive and take time to wake. Its free 
 
 ## Tests
 
-`npm test` runs movement-driven solutions for all three levels and real socket integration tests for shared movement, level changes, invalid origins, authentication, capacity, disconnect/resume, token privacy, leave and disabled legacy endpoints.
+`npm test` runs movement-driven solutions for all six scrolling levels and real socket integration tests for shared movement, level changes, invalid origins, authentication, capacity, disconnect/resume, token privacy, leave and disabled legacy endpoints.
